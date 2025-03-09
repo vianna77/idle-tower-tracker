@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Submission</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("data-form");
+            const tableBody = document.getElementById("data-table-body");
+            let editingRow = null;
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const entry = {};
+                formData.forEach((value, key) => {
+                    entry[key] = value;
+                });
+
+                if (editingRow) {
+                    updateRow(editingRow, entry);
+                    editingRow = null;
+                } else {
+                    addRow(entry);
+                }
+
+                form.reset();
+            });
+
+            function addRow(entry) {
+                const row = document.createElement("tr");
+
+                Object.values(entry).forEach(value => {
+                    const cell = document.createElement("td");
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+
+                const actionsCell = document.createElement("td");
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.addEventListener("click", () => editRow(row, entry));
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", () => row.remove());
+
+                actionsCell.appendChild(editButton);
+                actionsCell.appendChild(deleteButton);
+                row.appendChild(actionsCell);
+
+                tableBody.appendChild(row);
+            }
+
+            function editRow(row, entry) {
+                Object.keys(entry).forEach((key, index) => {
+                    document.querySelector(`[name="${key}"]`).value = row.children[index].textContent;
+                });
+
+                editingRow = row;
+            }
+
+            function updateRow(row, entry) {
+                Object.values(entry).forEach((value, index) => {
+                    row.children[index].textContent = value;
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <h2>Submit Data</h2>
+    <form id="data-form" name="data-form" method="POST" data-netlify="true">
+        <label>Id: <input type="number" name="id" required></label><br>
+        <label>Tier: <input type="number" name="tier" required></label><br>
+        <label>Wave: <input type="number" name="wave" required></label><br>
+        <label>Coins: <input type="number" name="coins" required></label><br>
+        <label>Cells: <input type="number" name="cells" required></label><br>
+        <label>Hours: <input type="number" name="hours" required></label><br>
+        <label>Minutes: <input type="number" name="minutes" required></label><br>
+        <label>Seconds: <input type="number" name="seconds" required></label><br>
+        <label>Notes: <input type="text" name="notes"></label><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Entries</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Tier</th>
+                <th>Wave</th>
+                <th>Coins</th>
+                <th>Cells</th>
+                <th>Hours</th>
+                <th>Minutes</th>
+                <th>Seconds</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="data-table-body"></tbody>
+    </table>
+</body>
+</html>
