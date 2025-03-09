@@ -4,11 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Submission</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            max-width: 300px;
+            gap: 10px; /* Adds space between input rows */
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            font-weight: bold;
+        }
+
+        input {
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        table {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            margin-right: 5px;
+        }
+    </style>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById("data-form");
             const tableBody = document.getElementById("data-table-body");
+            const idField = document.getElementById("id-field");
             let editingRow = null;
+
+            function generateUniqueId() {
+                let lastId = localStorage.getItem("lastId") || 0;
+                lastId = parseInt(lastId) + 1;
+                localStorage.setItem("lastId", lastId);
+                return lastId;
+            }
+
+            function setNewId() {
+                idField.value = generateUniqueId();
+            }
+            setNewId();
 
             form.addEventListener("submit", function (event) {
                 event.preventDefault();
@@ -27,6 +91,7 @@
                 }
 
                 form.reset();
+                setNewId();
             });
 
             function addRow(entry) {
@@ -56,15 +121,19 @@
 
             function editRow(row, entry) {
                 Object.keys(entry).forEach((key, index) => {
-                    document.querySelector(`[name="${key}"]`).value = row.children[index].textContent;
+                    if (key !== "id") {
+                        document.querySelector(`[name="${key}"]`).value = row.children[index].textContent;
+                    }
                 });
 
                 editingRow = row;
             }
 
             function updateRow(row, entry) {
-                Object.values(entry).forEach((value, index) => {
-                    row.children[index].textContent = value;
+                Object.keys(entry).forEach((key, index) => {
+                    if (key !== "id") {
+                        row.children[index].textContent = entry[key];
+                    }
                 });
             }
         });
@@ -73,20 +142,20 @@
 <body>
     <h2>Submit Data</h2>
     <form id="data-form" name="data-form" method="POST" data-netlify="true">
-        <label>Id: <input type="number" name="id" required></label><br>
-        <label>Tier: <input type="number" name="tier" required></label><br>
-        <label>Wave: <input type="number" name="wave" required></label><br>
-        <label>Coins: <input type="number" name="coins" required></label><br>
-        <label>Cells: <input type="number" name="cells" required></label><br>
-        <label>Hours: <input type="number" name="hours" required></label><br>
-        <label>Minutes: <input type="number" name="minutes" required></label><br>
-        <label>Seconds: <input type="number" name="seconds" required></label><br>
-        <label>Notes: <input type="text" name="notes"></label><br>
+        <label>Id: <input type="number" id="id-field" name="id" readonly></label>
+        <label>Tier: <input type="number" name="tier" required></label>
+        <label>Wave: <input type="number" name="wave" required></label>
+        <label>Coins: <input type="number" name="coins" required></label>
+        <label>Cells: <input type="number" name="cells" required></label>
+        <label>Hours: <input type="number" name="hours" required></label>
+        <label>Minutes: <input type="number" name="minutes" required></label>
+        <label>Seconds: <input type="number" name="seconds" required></label>
+        <label>Notes: <input type="text" name="notes"></label>
         <button type="submit">Submit</button>
     </form>
 
     <h2>Entries</h2>
-    <table border="1">
+    <table>
         <thead>
             <tr>
                 <th>Id</th>
